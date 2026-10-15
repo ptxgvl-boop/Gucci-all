@@ -13,6 +13,7 @@ local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui")
 local StarterGui = game:GetService("StarterGui")
+local SoundService = game:GetService("SoundService")
 
 local LocalPlayer = Players.LocalPlayer
 local RS = ReplicatedStorage
@@ -25,6 +26,21 @@ local SpawnToyRF = MenuToys and MenuToys:WaitForChild("SpawnToyRemoteFunction", 
 local DestroyToy = MenuToys and MenuToys:WaitForChild("DestroyToy", 5)
 local SetNetOwner = GrabEvents and GrabEvents:WaitForChild("SetNetworkOwner", 5)
 local RagdollRemote = CharacterEvents and CharacterEvents:WaitForChild("RagdollRemote", 5)
+
+--============================================================
+-- [1.1] LOADING SOUND (เล่นตอนรัน)
+--============================================================
+pcall(function()
+    local loadingSound = Instance.new("Sound")
+    loadingSound.Name = "XOCU_LoadingSound"
+    loadingSound.SoundId = "rbxassetid://405593386"
+    loadingSound.Volume = 1
+    loadingSound.Parent = SoundService
+    loadingSound:Play()
+    loadingSound.Ended:Connect(function()
+        loadingSound:Destroy()
+    end)
+end)
 
 --============================================================
 -- [2] HELPER FUNCTIONS
@@ -64,7 +80,7 @@ local function playSound()
         local s = Instance.new("Sound")
         s.SoundId = "rbxassetid://129485210015224"
         s.Volume = 1
-        s.Parent = game:GetService("SoundService")
+        s.Parent = SoundService
         s:Play()
         s.Ended:Connect(function() s:Destroy() end)
     end)
@@ -101,11 +117,42 @@ mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.Visible = true
+mainFrame.ClipsDescendants = true
 mainFrame.Parent = gui
 
 local mainCorner = Instance.new("UICorner")
 mainCorner.CornerRadius = UDim.new(0, 8)
 mainCorner.Parent = mainFrame
+
+-- ✅ Background Image (ID ที่ให้มา)
+local bgImage = Instance.new("ImageLabel")
+bgImage.Name = "BackgroundImage"
+bgImage.Size = UDim2.new(1, 0, 1, 0)
+bgImage.Position = UDim2.new(0, 0, 0, 0)
+bgImage.BackgroundTransparency = 1
+bgImage.Image = "rbxassetid://126537482053881"
+bgImage.ScaleType = Enum.ScaleType.Crop
+bgImage.ZIndex = 0
+bgImage.Parent = mainFrame
+
+local bgImageCorner = Instance.new("UICorner")
+bgImageCorner.CornerRadius = UDim.new(0, 8)
+bgImageCorner.Parent = bgImage
+
+-- Dark overlay ให้ UI อ่านง่าย
+local bgOverlay = Instance.new("Frame")
+bgOverlay.Name = "BackgroundOverlay"
+bgOverlay.Size = UDim2.new(1, 0, 1, 0)
+bgOverlay.Position = UDim2.new(0, 0, 0, 0)
+bgOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+bgOverlay.BackgroundTransparency = 0.45
+bgOverlay.BorderSizePixel = 0
+bgOverlay.ZIndex = 1
+bgOverlay.Parent = mainFrame
+
+local bgOverlayCorner = Instance.new("UICorner")
+bgOverlayCorner.CornerRadius = UDim.new(0, 8)
+bgOverlayCorner.Parent = bgOverlay
 
 local mainStroke = Instance.new("UIStroke")
 mainStroke.Color = Color3.fromRGB(168, 85, 247)
@@ -118,8 +165,9 @@ local titleBar = Instance.new("Frame")
 titleBar.Name = "TitleBar"
 titleBar.Size = UDim2.new(1, 0, 0, 36)
 titleBar.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
-titleBar.BackgroundTransparency = 0.3
+titleBar.BackgroundTransparency = 0.35
 titleBar.BorderSizePixel = 0
+titleBar.ZIndex = 2
 titleBar.Parent = mainFrame
 
 local titleCorner = Instance.new("UICorner")
@@ -135,6 +183,7 @@ titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextSize = 14
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.ZIndex = 3
 titleLabel.Parent = titleBar
 
 -- Minimize button (เดียว ไม่มี Close)
@@ -148,6 +197,7 @@ minBtn.Text = "—"
 minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 minBtn.TextSize = 16
 minBtn.Font = Enum.Font.GothamBold
+minBtn.ZIndex = 3
 minBtn.Parent = titleBar
 
 local minCorner = Instance.new("UICorner")
@@ -165,6 +215,7 @@ contentScroll.ScrollBarThickness = 4
 contentScroll.ScrollBarImageColor3 = Color3.fromRGB(168, 85, 247)
 contentScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 contentScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+contentScroll.ZIndex = 2
 contentScroll.Parent = mainFrame
 
 local contentLayout = Instance.new("UIListLayout")
@@ -193,7 +244,33 @@ floatBtn.TextSize = 22
 floatBtn.Font = Enum.Font.GothamBlack
 floatBtn.Visible = false
 floatBtn.Active = true
+floatBtn.ClipsDescendants = true
 floatBtn.Parent = gui
+
+-- ✅ Background Image ของปุ่มลอย
+local floatBg = Instance.new("ImageLabel")
+floatBg.Size = UDim2.new(1, 0, 1, 0)
+floatBg.BackgroundTransparency = 1
+floatBg.Image = "rbxassetid://126537482053881"
+floatBg.ScaleType = Enum.ScaleType.Crop
+floatBg.ZIndex = 0
+floatBg.Parent = floatBtn
+
+local floatBgCorner = Instance.new("UICorner")
+floatBgCorner.CornerRadius = UDim.new(1, 0)
+floatBgCorner.Parent = floatBg
+
+local floatBgOverlay = Instance.new("Frame")
+floatBgOverlay.Size = UDim2.new(1, 0, 1, 0)
+floatBgOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+floatBgOverlay.BackgroundTransparency = 0.5
+floatBgOverlay.BorderSizePixel = 0
+floatBgOverlay.ZIndex = 1
+floatBgOverlay.Parent = floatBtn
+
+local floatBgOverlayCorner = Instance.new("UICorner")
+floatBgOverlayCorner.CornerRadius = UDim.new(1, 0)
+floatBgOverlayCorner.Parent = floatBgOverlay
 
 local floatCorner = Instance.new("UICorner")
 floatCorner.CornerRadius = UDim.new(1, 0)
@@ -240,8 +317,9 @@ local function makeToggle(name, default, callback)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 0, 32)
     frame.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
-    frame.BackgroundTransparency = 0.4
+    frame.BackgroundTransparency = 0.35
     frame.BorderSizePixel = 0
+    frame.ZIndex = 2
     frame.Parent = contentScroll
 
     local c = Instance.new("UICorner")
@@ -257,6 +335,7 @@ local function makeToggle(name, default, callback)
     lbl.TextSize = 12
     lbl.Font = Enum.Font.GothamMedium
     lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 3
     lbl.Parent = frame
 
     local track = Instance.new("Frame")
@@ -264,6 +343,7 @@ local function makeToggle(name, default, callback)
     track.Position = UDim2.new(1, -48, 0.5, -10)
     track.BackgroundColor3 = default and Color3.fromRGB(168, 85, 247) or Color3.fromRGB(60, 60, 70)
     track.BorderSizePixel = 0
+    track.ZIndex = 3
     track.Parent = frame
 
     local trackC = Instance.new("UICorner")
@@ -275,6 +355,7 @@ local function makeToggle(name, default, callback)
     knob.Position = default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
     knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     knob.BorderSizePixel = 0
+    knob.ZIndex = 4
     knob.Parent = track
 
     local knobC = Instance.new("UICorner")
@@ -285,6 +366,7 @@ local function makeToggle(name, default, callback)
     btn.Size = UDim2.new(1, 0, 1, 0)
     btn.BackgroundTransparency = 1
     btn.Text = ""
+    btn.ZIndex = 5
     btn.Parent = frame
 
     local state = default
@@ -313,8 +395,9 @@ local function makeDropdown(name, items, default, callback)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 0, 32)
     frame.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
-    frame.BackgroundTransparency = 0.4
+    frame.BackgroundTransparency = 0.35
     frame.BorderSizePixel = 0
+    frame.ZIndex = 2
     frame.Parent = contentScroll
 
     local c = Instance.new("UICorner")
@@ -330,6 +413,7 @@ local function makeDropdown(name, items, default, callback)
     lbl.TextSize = 12
     lbl.Font = Enum.Font.GothamMedium
     lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 3
     lbl.Parent = frame
 
     local btn = Instance.new("TextButton")
@@ -341,6 +425,7 @@ local function makeDropdown(name, items, default, callback)
     btn.TextColor3 = Color3.fromRGB(230, 230, 240)
     btn.TextSize = 11
     btn.Font = Enum.Font.GothamMedium
+    btn.ZIndex = 3
     btn.Parent = frame
 
     local btnC = Instance.new("UICorner")
@@ -383,6 +468,7 @@ local function makeDropdown(name, items, default, callback)
         scroll.BorderSizePixel = 0
         scroll.ScrollBarThickness = 3
         scroll.CanvasSize = UDim2.new(0, 0, 0, #items * 24)
+        scroll.ZIndex = 11
         scroll.Parent = menu
 
         local layout = Instance.new("UIListLayout")
@@ -397,6 +483,7 @@ local function makeDropdown(name, items, default, callback)
             opt.TextSize = 11
             opt.Font = Enum.Font.GothamMedium
             opt.TextXAlignment = Enum.TextXAlignment.Left
+            opt.ZIndex = 12
             opt.Parent = scroll
 
             local oc = Instance.new("UICorner")
@@ -426,8 +513,9 @@ local function makeKeybind(name, default, callback)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 0, 32)
     frame.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
-    frame.BackgroundTransparency = 0.4
+    frame.BackgroundTransparency = 0.35
     frame.BorderSizePixel = 0
+    frame.ZIndex = 2
     frame.Parent = contentScroll
 
     local c = Instance.new("UICorner")
@@ -443,6 +531,7 @@ local function makeKeybind(name, default, callback)
     lbl.TextSize = 12
     lbl.Font = Enum.Font.GothamMedium
     lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 3
     lbl.Parent = frame
 
     local btn = Instance.new("TextButton")
@@ -454,6 +543,7 @@ local function makeKeybind(name, default, callback)
     btn.TextColor3 = Color3.fromRGB(230, 230, 240)
     btn.TextSize = 11
     btn.Font = Enum.Font.GothamMedium
+    btn.ZIndex = 3
     btn.Parent = frame
 
     local btnC = Instance.new("UICorner")
@@ -485,6 +575,7 @@ local function makeSection(name)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 0, 24)
     frame.BackgroundTransparency = 1
+    frame.ZIndex = 2
     frame.Parent = contentScroll
 
     local lbl = Instance.new("TextLabel")
@@ -495,6 +586,7 @@ local function makeSection(name)
     lbl.TextSize = 11
     lbl.Font = Enum.Font.GothamBold
     lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 3
     lbl.Parent = frame
 end
 
